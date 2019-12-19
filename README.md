@@ -27,7 +27,14 @@ The modules in this repository are focused on enabling automation of installatio
 #### Deployment and installation modules
 
 ##### Logical networking modules
-* nsxt_policy_segments.py
+* nsxt_policy_tier0s
+* nsxt_policy_tier0s_facts
+* nsxt_policy_ippools
+* nsxt_policy_ippools_facts
+* nsxt_policy_ippools_static_subnets
+* nsxt_policy_ippools_static_subnets_facts
+* nsxt_policy_segments
+* nsxt_policy_segments_facts
 
 # Prerequisites
 We assume that ansible is already installed.
@@ -62,7 +69,7 @@ The following versions of NSX are supported:
 
 The forterro/ansible-for-nsxt-policy project team welcomes contributions from the community.
 
-Because this project is based on  [ansible-for-nsxt](https://github.com/forterro/ansible-for-nsxt) we keep rules from vmware github
+Because this project is based on  [ansible-for-nsxt](https://github.com/vmware/ansible-for-nsxt) we keep rules from vmware github
 
 Before you start working with ansible-for-nsxt-policy, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
