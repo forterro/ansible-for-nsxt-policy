@@ -12,14 +12,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: nsxt_policy_ippools_static_subnets
 
@@ -96,20 +99,9 @@ options:
         description: IP Address for gateway eg : 10.0.0.1
         required: false
         type: str
+"""
 
-
-
-
-
-                        ippool=dict(required=True, type='str'),
-                        allocation_ranges=dict(required=True, type='list'),
-                        cidr=dict(required=True, type='str'),
-                        dns_nameservers=dict(required=False, type='list'),
-                        dns_suffix=dict(required=False, type='str'),
-                        gateway_ip=dict(required=False, type='str')
-'''
-
-EXAMPLES = '''
+EXAMPLES = """
 nsxt_policy_ippools_static_subnets:
     hostname: "nsxvip.domain.local"
     username: "admin"
@@ -129,55 +121,64 @@ nsxt_policy_ippools_static_subnets:
       - "8.8.4.4"
     dns_suffix: "nsxlab.local"
     gateway_ip: "10.1.0.1"
-'''
+"""
 
-RETURN = '''# '''
-
-
+RETURN = """# """
 
 
-from ansible.module_utils.vmware_nsxt_policy_apis import vmware_argument_spec,nsx_module_execution,get_nsx_module_params
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_execution,
+    get_nsx_module_params,
+)
 from ansible.module_utils.basic import AnsibleModule
 
+
 def main():
-  argument_spec = vmware_argument_spec()
-  argument_spec.update( display_name=dict(required=True, type='str'),
-                        description=dict(required=False, type='str'),
-                        state=dict(required=True, choices=['present', 'absent']),
-                        ippool=dict(required=True, type='str'),
-                        allocation_ranges=dict(required=True, type='list'),
-                        cidr=dict(required=True, type='str'),
-                        dns_nameservers=dict(required=False, type='list'),
-                        dns_suffix=dict(required=False, type='str'),
-                        gateway_ip=dict(required=False, type='str'),
-                        resource_type=dict(required=False, type='str',default="IpAddressPoolStaticSubnet")
-                      )
+    argument_spec = vmware_argument_spec()
+    argument_spec.update(
+        display_name=dict(required=True, type="str"),
+        description=dict(required=False, type="str"),
+        state=dict(required=True, choices=["present", "absent"]),
+        ippool=dict(required=True, type="str"),
+        allocation_ranges=dict(required=True, type="list"),
+        cidr=dict(required=True, type="str"),
+        dns_nameservers=dict(required=False, type="list"),
+        dns_suffix=dict(required=False, type="str"),
+        gateway_ip=dict(required=False, type="str"),
+        resource_type=dict(
+            required=False, type="str", default="IpAddressPoolStaticSubnet"
+        ),
+    )
 
-  module = AnsibleModule( argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-  api_endpoint          = 'ip-subnets'   # Define API endpoint for object (eg: segments)
-  object_def            = 'ip-subnet'   # Define object name (eg: segment)
+    api_endpoint = "ip-subnets"  # Define API endpoint for object (eg: segments)
+    object_def = "ip-subnet"  # Define object name (eg: segment)
 
-  # Define api params to remove from returned object to get same object as ansible object
-  api_params_to_remove  = ['pool_usage']
+    # Define api params to remove from returned object to get same object as ansible object
+    api_params_to_remove = ["pool_usage"]
 
-  # Define read only params to fail module if call try to update
-  api_protected_params =  ['resource_type']
+    # Define read only params to fail module if call try to update
+    api_protected_params = ["resource_type"]
 
-  # Define params from ansible to remove for correct object as nsx api object
-  ansible_params_to_remove = ['ippool']
+    # Define params from ansible to remove for correct object as nsx api object
+    ansible_params_to_remove = ["ippool"]
 
-  manager_url     = 'https://{}/policy/api/v1/infra/ip-pools/{}'.format(module.params['hostname'],module.params['ippool'])
+    manager_url = "https://{}/policy/api/v1/infra/ip-pools/{}".format(
+        module.params["hostname"], module.params["ippool"]
+    )
+
+    nsx_module_execution(
+        module=module,
+        manager_url=manager_url,
+        api_endpoint=api_endpoint,
+        object_def=object_def,
+        api_params_to_remove=api_params_to_remove,
+        api_protected_params=api_protected_params,
+        ansible_params_to_remove=ansible_params_to_remove,
+    )
 
 
-  nsx_module_execution( module=module,
-                        manager_url=manager_url,
-                        api_endpoint=api_endpoint,
-                        object_def=object_def,
-                        api_params_to_remove=api_params_to_remove,
-                        api_protected_params=api_protected_params,
-                        ansible_params_to_remove=ansible_params_to_remove
-                      )
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

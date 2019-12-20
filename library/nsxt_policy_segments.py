@@ -12,14 +12,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: nsxt_policy_segments
 
@@ -101,9 +104,9 @@ options:
                 - gateway_address (str)(required) CIDR format xxx.xxx.xxx.xxx/yy
                   network  (str)(required) CIDR format xxx.xxx.xxx.xxx/yy
                   dhcp_ranges: array of ipElement. Need to configure dhcp on connected routed
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 
 # Vlan Backed segment
 nsxt_policy_segments:
@@ -141,58 +144,64 @@ nsxt_policy_segments:
       address_pool_paths:
         - "/infra/ip-pools/ippool-overlay1"
 
-'''
+"""
 
 
-RETURN = '''# '''
+RETURN = """# """
 
-from ansible.module_utils.vmware_nsxt_policy_apis import vmware_argument_spec,nsx_module_execution,get_nsx_module_params
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_execution,
+    get_nsx_module_params,
+)
 from ansible.module_utils.basic import AnsibleModule
 
+
 def main():
-  argument_spec = vmware_argument_spec()
-  argument_spec.update( display_name=dict(required=True, type='str'),
-                        description=dict(required=False, type='str'),
-                        state=dict(required=True, choices=['present', 'absent']),
-                        vlan_ids=dict(required=False, type='list'),
-                        connectivity_path=dict(required=False,type='str'),
-                        transport_zone_path=dict(required=True, type='str'),
-                        advanced_config=dict(required=False, type='dict'),
-                        subnets=dict(required=False, type='list'),
-                        domain_name=dict(required=False, type='str')
-                      )
+    argument_spec = vmware_argument_spec()
+    argument_spec.update(
+        display_name=dict(required=True, type="str"),
+        description=dict(required=False, type="str"),
+        state=dict(required=True, choices=["present", "absent"]),
+        vlan_ids=dict(required=False, type="list"),
+        connectivity_path=dict(required=False, type="str"),
+        transport_zone_path=dict(required=True, type="str"),
+        advanced_config=dict(required=False, type="dict"),
+        subnets=dict(required=False, type="list"),
+        domain_name=dict(required=False, type="str"),
+    )
 
-  module = AnsibleModule( argument_spec=argument_spec,
-                          supports_check_mode=True,
-                          mutually_exclusive=[
-                            ['vlan_ids', 'connectivity_path'],
-                            ['vlan_ids', 'subnets']
-                          ]
-                        )
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        mutually_exclusive=[["vlan_ids", "connectivity_path"], ["vlan_ids", "subnets"]],
+    )
 
-  api_endpoint    = 'segments'
-  object_def      = 'segment'
+    api_endpoint = "segments"
+    object_def = "segment"
 
-  api_params_to_remove = ['resource_type']
-  api_protected_params =  ['transport_zone_path']
-  ansible_params_to_remove = []
+    api_params_to_remove = ["resource_type"]
+    api_protected_params = ["transport_zone_path"]
+    ansible_params_to_remove = []
 
-  manager_url     = 'https://{}/policy/api/v1/infra'.format(module.params['hostname'])
+    manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
 
-  # update advanced config
-  if (module.params.__contains__('advanced_config')):
-    module.params['advanced_config']['hybrid'] = False
-    module.params['advanced_config']['local_egress'] = False
-    module.params['advanced_config']['connectivity'] = "ON"
+    # update advanced config
+    if module.params.__contains__("advanced_config"):
+        module.params["advanced_config"]["hybrid"] = False
+        module.params["advanced_config"]["local_egress"] = False
+        module.params["advanced_config"]["connectivity"] = "ON"
 
-  nsx_module_execution( module=module,
-                        manager_url=manager_url,
-                        api_endpoint=api_endpoint,
-                        object_def=object_def,
-                        api_params_to_remove=api_params_to_remove,
-                        api_protected_params=api_protected_params,
-                        ansible_params_to_remove=ansible_params_to_remove
-                      )
+    nsx_module_execution(
+        module=module,
+        manager_url=manager_url,
+        api_endpoint=api_endpoint,
+        object_def=object_def,
+        api_params_to_remove=api_params_to_remove,
+        api_protected_params=api_protected_params,
+        ansible_params_to_remove=ansible_params_to_remove,
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

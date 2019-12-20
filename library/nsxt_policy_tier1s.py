@@ -29,9 +29,9 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_tier0s
+module: nsxt_policy_tier1s
 
-short_description: Manage a tier0 with policy APIS (logical north south router)
+short_description: Manage a tier1 with policy APIS (logical north south router)
 
 description:
 
@@ -93,6 +93,13 @@ options:
     required: false
     default: false
     type: bool
+  enable_standby_relocation:
+    description:  Flag to enable standby service router relocation.
+                  Standby relocation is not enabled until edge cluster is configured
+                  for Tier1.
+    required: false
+    default: false
+    type: bool
   failover_mode:
     description:  Determines the behavior when a Tier-0 instance in ACTIVE-STANDBY
                   high-availability mode restarts after a failure. If set to
@@ -106,51 +113,42 @@ options:
       - NON_PREEMPTIVE
       - PREEMPTIVE
     type: str
-  ha_mode:
-    description:  High-availability Mode for Tier-0
-                  Specify high-availability mode for Tier-0.
-    required: false
-    default: ACTIVE_ACTIVE
-    choices:
-      - ACTIVE_ACTIVE
-      - ACTIVE_STANDBY
-    type: str
-  transit_subnets:
-    description:  Transit subnets in CIDR format
-                  Specify transit subnets that are used to assign addresses to logical links
-                  connecting tier-0 and tier-1s. Both IPv4 and IPv6 addresses are supported.
-    required: false
-    default: ["100.64.0.0/16"]
-    type: list
-  internal_transit_subnets:
-    description:  Internal transit subnets in CIDR format
-                  Specify subnets that are used to assign addresses to logical links
-                  connecting service routers and distributed routers. Only IPv4
-                  addresses are supported.
-                  Maximum items: 1
-    required: false
-    default: ["169.254.0.0/24"]
-    type: list
   ipv6_profile_paths:
     description:  IPv6 NDRA and DAD profiles configuration
-                  IPv6 NDRA and DAD profiles configuration on Tier0. Either or both
+                  IPv6 NDRA and DAD profiles configuration on tier1. Either or both
                   NDRA and/or DAD profiles can be configured.
                   Minimum items: 0
                   Maximum items: 2
     required: false
     default: ["/infra/ipv6-ndra-profiles/default", "/infra/ipv6-dad-profiles/default"]
     type: list
+  tier0_path:
+    description:  Specify Tier-1 connectivity to Tier-0 instance.
+    type: str
+    required: false
+  type:
+    description:  Tier1 connectivity type for reference. Property value is not validated
+                  with Tier1 configuration.
+                  ROUTED: Tier1 is connected to Tier0 gateway and routing is enabled.
+                  ISOLATED: Tier1 is not connected to any Tier0 gateway.
+                  NATTED: Tier1 is in ROUTED type with NAT configured locally.
+    choices:
+      - ROUTED
+      - ISOLATED
+      - NATTED
+    default: ROUTED
+    type: str
 """
 
 EXAMPLES = """
 
-nsxt_policy_tier0s:
+nsxt_policy_tier1s:
   hostname: "nsxvip.domain.local"
   username: "admin"
   password: "Vmware1!"
   validate_certs: false
-  display_name: "My_first_tier0s"
-  description: "My first tier0s automated created by Ansible for NSX-T policy"
+  display_name: "My_first_tier1s"
+  description: "My first tier1s automated created by Ansible for NSX-T policy"
 """
 
 RETURN = """# """
@@ -160,28 +158,19 @@ def main():
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         display_name=dict(required=True, type="str"),
-        description=dict(required=False, type="str"),
         state=dict(required=True, choices=["present", "absent"]),
+        default_rule_logging=dict(required=False, type="bool", default=False),
+        description=dict(required=False, type="str"),
         dhcp_config_paths=dict(required=False, type="list"),
         disable_firewall=dict(required=False, type="bool", default=False),
-        force_whitelisting=dict(required=False, type="bool", default=False),
-        default_rule_logging=dict(required=False, type="bool", default=False),
+        enable_standby_relocation=dict(required=False, type="bool", default=False),
         failover_mode=dict(
             required=False,
             type="str",
             default="NON_PREEMPTIVE",
             choices=["NON_PREEMPTIVE", "PREEMPTIVE"],
         ),
-        ha_mode=dict(
-            required=False,
-            type="str",
-            default="ACTIVE_ACTIVE",
-            choices=["ACTIVE_ACTIVE", "ACTIVE_STANDBY"],
-        ),
-        transit_subnets=dict(required=False, type="list", default=["100.64.0.0/16"]),
-        internal_transit_subnets=dict(
-            required=False, type="list", default=["169.254.0.0/24"]
-        ),
+        force_whitelisting=dict(required=False, type="bool", default=False),
         ipv6_profile_paths=dict(
             required=False,
             type="list",
@@ -190,12 +179,19 @@ def main():
                 "/infra/ipv6-dad-profiles/default",
             ],
         ),
+        tier0_path=dict(required=False, type="str"),
+        type=dict(
+            required=False,
+            type="str",
+            choices=["ROUTED", "ISOLATED", "NATTED"],
+            default="ROUTED",
+        ),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    api_endpoint = "tier-0s"
-    object_def = "tier-0"
+    api_endpoint = "tier-1s"
+    object_def = "tier-1"
     api_params_to_remove = ["resource_type"]
 
     api_protected_params = ["ha_mode", "transit_subnets", "internal_transit_subnets"]

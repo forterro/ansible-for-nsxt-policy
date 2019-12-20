@@ -29,6 +29,11 @@ The modules in this repository are focused on enabling automation of installatio
 ##### Logical networking modules
 * nsxt_policy_tier0s
 * nsxt_policy_tier0s_facts
+* nsxt_policy_tier0s_local_services
+* nsxt_policy_tier0s_local_services_facts
+* nsxt_policy_tier0s_static_routes
+* nsxt_policy_tier0s_static_routes_facts
+* nsxt_policy_tier1s
 * nsxt_policy_ippools
 * nsxt_policy_ippools_facts
 * nsxt_policy_ippools_static_subnets

@@ -24,9 +24,9 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_tier0s_facts
+module: nsxt_policy_tier0s_locale_services_facts
 
-short_description: Get NSX-T tier0s facts from policy APIS
+short_description: Get NSX-T tier0s_locale_services_locale_services facts from policy APIS
 
 description:
 
@@ -61,26 +61,32 @@ options:
         description: Display name
         required: false
         type: str
+    tier0:
+        description: Identifier for concerned tier0 (display_name)
+        required: true
+        type: str
 """
 
 EXAMPLES = """
 
 # Returns facts for one tier0
-nsxt_policy_tier0s_facts:
+nsxt_policy_tier0s_locale_services_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    display_name: "My_first_tier0s"
+    display_name: "My_first_tier0s_locale_services"
+    tier0: "my_tier0"
 register: nsxt_tier0
 
-# Returns facts for all tier0s
-nsxt_policy_tier0s_facts:
+# Returns facts for all tier0s_locale_services
+nsxt_policy_tier0s_locale_services_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-register: nsxt_tier0s
+    tier0: "my_tier0"
+register: nsxt_tier0s_locale_services
 
 """
 
@@ -96,13 +102,18 @@ from ansible.module_utils.basic import AnsibleModule
 
 def main():
     argument_spec = vmware_argument_spec()
-    argument_spec.update(display_name=dict(required=False, type="str"))
+    argument_spec.update(
+        display_name=dict(required=False, type="str"),
+        tier0=dict(required=True, type="str"),
+    )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    api_endpoint = "tier-0s"
-    object_def = "tier-0"
-    manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
+    api_endpoint = "locale-services"
+    object_def = "locale-service"
+    manager_url = "https://{}/policy/api/v1/infra/tier-0s/{}".format(
+        module.params["hostname"], module.params["tier0"]
+    )
 
     nsx_module_facts_execution(
         module=module,

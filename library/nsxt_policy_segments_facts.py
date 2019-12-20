@@ -12,14 +12,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: nsxt_policy_segments_facts
 
@@ -58,9 +61,9 @@ options:
         description: Display name
         required: false
         type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 
 # Returns facts for one segment
 nsxt_policy_segments_facts:
@@ -79,25 +82,35 @@ nsxt_policy_segments_facts:
     validate_certs: false
 register: nsxt_segments
 
-'''
+"""
 
 
-RETURN = '''# '''
+RETURN = """# """
 
-from ansible.module_utils.vmware_nsxt_policy_apis import vmware_argument_spec,nsx_module_facts_execution
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_facts_execution,
+)
 from ansible.module_utils.basic import AnsibleModule
 
+
 def main():
-  argument_spec = vmware_argument_spec()
-  argument_spec.update(display_name=dict(required=False, type='str'))
+    argument_spec = vmware_argument_spec()
+    argument_spec.update(display_name=dict(required=False, type="str"))
 
-  module = AnsibleModule( argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-  api_endpoint    = 'segments'
-  object_def      = 'segment'
-  manager_url     = 'https://{}/policy/api/v1/infra'.format(module.params['hostname'])
+    api_endpoint = "segments"
+    object_def = "segment"
+    manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
 
-  nsx_module_facts_execution( module=module, manager_url=manager_url, api_endpoint=api_endpoint, object_def=object_def)
+    nsx_module_facts_execution(
+        module=module,
+        manager_url=manager_url,
+        api_endpoint=api_endpoint,
+        object_def=object_def,
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

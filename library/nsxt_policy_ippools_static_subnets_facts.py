@@ -12,14 +12,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: nsxt_policy_ippools_static_subnets_facts
 
@@ -62,9 +65,9 @@ options:
         description: Display name for targeted ippool
         required: true
         type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 
 # Returns facts for one ippool
 nsxt_policy_ippools_static_subnets_facts:
@@ -86,26 +89,40 @@ nsxt_policy_ippools_static_subnets_facts:
 
 register: nsxt_ippools_static_subnets
 
-'''
+"""
 
 
-RETURN = '''# '''
+RETURN = """# """
 
-from ansible.module_utils.vmware_nsxt_policy_apis import vmware_argument_spec,nsx_module_facts_execution
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_facts_execution,
+)
 from ansible.module_utils.basic import AnsibleModule
 
 
 def main():
-  argument_spec = vmware_argument_spec()
-  argument_spec.update(display_name=dict(required=False, type='str'),ippool=dict(required=True, type='str'))
+    argument_spec = vmware_argument_spec()
+    argument_spec.update(
+        display_name=dict(required=False, type="str"),
+        ippool=dict(required=True, type="str"),
+    )
 
-  module = AnsibleModule( argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-  api_endpoint    = 'ip-subnets'   # Define API endpoint for object (eg: segments)
-  object_def      = 'ip-subnet'   # Define object name (eg: segment)
-  manager_url     = 'https://{}/policy/api/v1/infra/ip-pools/{}'.format(module.params['hostname'],module.params['ippool'])
+    api_endpoint = "ip-subnets"  # Define API endpoint for object (eg: segments)
+    object_def = "ip-subnet"  # Define object name (eg: segment)
+    manager_url = "https://{}/policy/api/v1/infra/ip-pools/{}".format(
+        module.params["hostname"], module.params["ippool"]
+    )
 
-  nsx_module_facts_execution( module=module, manager_url=manager_url, api_endpoint=api_endpoint, object_def=object_def)
+    nsx_module_facts_execution(
+        module=module,
+        manager_url=manager_url,
+        api_endpoint=api_endpoint,
+        object_def=object_def,
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

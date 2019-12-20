@@ -12,14 +12,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: nsxt_policy_ippools
 
@@ -70,9 +73,9 @@ options:
         description: Description
         required: false
         type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 nsxt_policy_ippools:
     hostname: "nsxvip.domain.local"
     username: "admin"
@@ -80,45 +83,52 @@ nsxt_policy_ippools:
     validate_certs: false
     display_name: "My_first_ippool"
     description: "My first ippools automated created by Ansible for NSX-T policy"
-'''
+"""
 
-RETURN = '''# '''
+RETURN = """# """
 
-from ansible.module_utils.vmware_nsxt_policy_apis import vmware_argument_spec,nsx_module_execution,get_nsx_module_params
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_execution,
+    get_nsx_module_params,
+)
 from ansible.module_utils.basic import AnsibleModule
 
+
 def main():
-  argument_spec = vmware_argument_spec()
-  argument_spec.update( display_name=dict(required=True, type='str'),
-                        description=dict(required=False, type='str'),
-                        state=dict(required=True, choices=['present', 'absent'])
-                      )
+    argument_spec = vmware_argument_spec()
+    argument_spec.update(
+        display_name=dict(required=True, type="str"),
+        description=dict(required=False, type="str"),
+        state=dict(required=True, choices=["present", "absent"]),
+    )
 
-  module = AnsibleModule( argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-  api_endpoint    = 'ip-pools'   # Define API endpoint for object (eg: segments)
-  object_def      = 'ip-pool'   # Define object name (eg: segment)
+    api_endpoint = "ip-pools"  # Define API endpoint for object (eg: segments)
+    object_def = "ip-pool"  # Define object name (eg: segment)
 
-  # Define api params to remove from returned object to get same object as ansible object
-  api_params_to_remove =  ['resource_type']
+    # Define api params to remove from returned object to get same object as ansible object
+    api_params_to_remove = ["resource_type"]
 
-  # Define read only params to fail module if call try to update
-  api_protected_params =  []
+    # Define read only params to fail module if call try to update
+    api_protected_params = []
 
-  # Define params from ansible to remove for correct object as nsx api object
-  ansible_params_to_remove = []
+    # Define params from ansible to remove for correct object as nsx api object
+    ansible_params_to_remove = []
 
-  manager_url     = 'https://{}/policy/api/v1/infra'.format(module.params['hostname'])
+    manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
 
-  nsx_module_execution( module=module,
-                        manager_url=manager_url,
-                        api_endpoint=api_endpoint,
-                        object_def=object_def,
-                        api_params_to_remove=api_params_to_remove,
-                        api_protected_params=api_protected_params,
-                        ansible_params_to_remove=ansible_params_to_remove
-                      )
+    nsx_module_execution(
+        module=module,
+        manager_url=manager_url,
+        api_endpoint=api_endpoint,
+        object_def=object_def,
+        api_params_to_remove=api_params_to_remove,
+        api_protected_params=api_protected_params,
+        ansible_params_to_remove=ansible_params_to_remove,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
