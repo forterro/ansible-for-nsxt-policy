@@ -15,11 +15,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
 from ansible.module_utils.vmware_nsxt_policy_apis import (
     vmware_argument_spec,
     nsx_module_execution,
 )
-from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -33,7 +34,9 @@ module: nsxt_policy_tier1s
 
 short_description: Manage a tier1 with policy APIS (logical north south router)
 
-description:
+description: >
+    This module can be used to create, update or delete a tier1 gateway for NSX-T.
+    To be able to delete a gateway, prior it's necessary to delete related objects to itself.
 
 version_added: "2.9"
 
@@ -66,78 +69,155 @@ options:
     choices:
       - present
       - absent
-    description:  "State can be either 'present' or 'absent'.
-                  'present' is used to create or update resource.
-                  'absent' is used to delete resource."
+    description:
+        - "State can be either 'present' or 'absent'."
+        - "'present' is used to create or update resource."
+        - "'absent' is used to delete resource."
     required: true
     type: str
   display_name:
-    description:  Identifier to use when displaying entity in logs or GUI
-                  Maximum length: 255
+    description:
+        - "Identifier to use when displaying entity in logs or GUI"
+        - "Maximum length 255"
     required: true
     type: str
   description:
-    description: Description
+    description:
+        - "Description"
     required: false
     type: str
   dhcp_config_paths:
-    description:  DHCP configuration for Segments connected to Tier-0
-                  DHCP configuration for Segments connected to Tier-0.
-                  DHCP service is configured in relay mode.
-                  Minimum items: 0
-                  Maximum items: 1
+    description:
+      - "DHCP configuration for Segments connected to Tier-0.
+         DHCP service is configured in relay mode."
+      - "Minimum items: 0"
+      - "Maximum items: 1"
     required: false
     type: list
+    elements: str
   disable_firewall:
-    description: Disable or enable gateway fiewall.
+    description: "Disable or enable gateway fiewall."
     required: false
     default: false
-    type: bool
+    type: boolean
   enable_standby_relocation:
-    description:  Flag to enable standby service router relocation.
-                  Standby relocation is not enabled until edge cluster is configured
-                  for Tier1.
+    description:
+      - "Flag to enable standby service router relocation."
+      - "Standby relocation is not enabled until edge cluster is configured for Tier1."
     required: false
     default: false
-    type: bool
+    type: boolean
   failover_mode:
-    description:  Determines the behavior when a Tier-0 instance in ACTIVE-STANDBY
-                  high-availability mode restarts after a failure. If set to
-                  PREEMPTIVE, the preferred node will take over, even if it causes
-                  another failure. If set to NON_PREEMPTIVE, then the instance that
-                  restarted will remain secondary. This property must not be populated
-                  unless the ha_mode property is set to ACTIVE_STANDBY.
+    description:
+      - "Determines the behavior when a Tier-0 instance in ACTIVE-STANDBY
+        high-availability mode restarts after a failure. If set to
+        PREEMPTIVE, the preferred node will take over, even if it causes
+        another failure. If set to NON_PREEMPTIVE, then the instance that
+        restarted will remain secondary."
+      - "This property must not be populated unless the ha_mode property is set to ACTIVE_STANDBY."
     required: false
-    default: NON_PREEMPTIVE
+    default: "NON_PREEMPTIVE"
     choices:
-      - NON_PREEMPTIVE
-      - PREEMPTIVE
+      - "NON_PREEMPTIVE"
+      - "PREEMPTIVE"
     type: str
   ipv6_profile_paths:
-    description:  IPv6 NDRA and DAD profiles configuration
-                  IPv6 NDRA and DAD profiles configuration on tier1. Either or both
-                  NDRA and/or DAD profiles can be configured.
-                  Minimum items: 0
-                  Maximum items: 2
+    description:
+      - "IPv6 NDRA and DAD profiles configuration on tier1. Either or both
+         NDRA and/or DAD profiles can be configured."
+      - "Minimum items: 0"
+      - "Maximum items: 2"
     required: false
-    default: ["/infra/ipv6-ndra-profiles/default", "/infra/ipv6-dad-profiles/default"]
+    default:
+      - "/infra/ipv6-ndra-profiles/default"
+      - "/infra/ipv6-dad-profiles/default"
     type: list
+    elements: str
   tier0_path:
     description:  Specify Tier-1 connectivity to Tier-0 instance.
     type: str
     required: false
   type:
-    description:  Tier1 connectivity type for reference. Property value is not validated
-                  with Tier1 configuration.
-                  ROUTED: Tier1 is connected to Tier0 gateway and routing is enabled.
-                  ISOLATED: Tier1 is not connected to any Tier0 gateway.
-                  NATTED: Tier1 is in ROUTED type with NAT configured locally.
+    description:
+      - "Tier1 connectivity type for reference. Property value is not validated with Tier1 configuration."
+      - "ROUTED: Tier1 is connected to Tier0 gateway and routing is enabled."
+      - "ISOLATED: Tier1 is not connected to any Tier0 gateway."
+      - "NATTED: Tier1 is in ROUTED type with NAT configured locally."
     choices:
-      - ROUTED
-      - ISOLATED
-      - NATTED
-    default: ROUTED
+      - "ROUTED"
+      - "ISOLATED"
+      - "NATTED"
+    default: "ROUTED"
     type: str
+  route_advertisement_rules:
+    description:  "Route advertisement rules and filtering"
+    type: list
+    required: false
+    suboptions:
+      name:
+        description: "Display name should be unique."
+        type: str
+        required: true
+      action:
+        description:
+          - "Action to advertise filtered routes to the connected Tier0 gateway."
+          - "PERMIT: Enables the advertisment"
+          - "DENY: Disables the advertisement"
+        required: true
+        type: str
+        choices:
+          - "PERMIT"
+          - "DENY"
+      prefix_operator:
+        description:
+          - "Prefix operator to filter subnets."
+          - "GE prefix operator filters all the routes with prefix length greater
+            than or equal to the subnets configured."
+          - "EQ prefix operator filter all the routes with prefix length equal to
+            the subnets configured."
+        type: str
+        required: false
+        choices:
+          - "GE"
+          - "EQ"
+        default: "GE"
+      route_advertisement_types:
+        description:
+          - "Enable different types of route advertisements."
+          - "When not specified, routes to IPSec VPN local-endpoint subnets
+             (TIER1_IPSEC_LOCAL_ENDPOINT) are automatically advertised."
+        type: list
+        required: false
+        choices:
+          - "TIER1_STATIC_ROUTES"
+          - "TIER1_CONNECTED"
+          - "TIER1_NAT"
+          - "TIER1_LB_VIP"
+          - "TIER1_LB_SNAT"
+          - "TIER1_DNS_FORWARDER_IP"
+          - "TIER1_IPSEC_LOCAL_ENDPOINT"
+    subnets:
+      description: "Network CIDRs to be routed."
+      type: list
+      required: false
+      elements: str
+
+  route_advertisement_types:
+    description:
+      - "Enable different types of route advertisements."
+      - "When not specified, routes to IPSec VPN local-endpoint subnets
+         (TIER1_IPSEC_LOCAL_ENDPOINT) are automatically advertised."
+    type: list
+    required: false
+    elements: str
+    choices:
+      - "TIER1_STATIC_ROUTES"
+      - "TIER1_CONNECTED"
+      - "TIER1_NAT"
+      - "TIER1_LB_VIP"
+      - "TIER1_LB_SNAT"
+      - "TIER1_DNS_FORWARDER_IP"
+      - "TIER1_IPSEC_LOCAL_ENDPOINT"
 """
 
 EXAMPLES = """
@@ -185,6 +265,20 @@ def main():
             type="str",
             choices=["ROUTED", "ISOLATED", "NATTED"],
             default="ROUTED",
+        ),
+        route_advertisement_rules=dict(required=False, type="list"),
+        route_advertisement_types=dict(
+            required=False,
+            type="list",
+            choices=[
+                "TIER1_STATIC_ROUTES",
+                "TIER1_CONNECTED",
+                "TIER1_NAT",
+                "TIER1_LB_VIP",
+                "TIER1_LB_SNAT",
+                "TIER1_DNS_FORWARDER_IP",
+                "TIER1_IPSEC_LOCAL_ENDPOINT",
+            ],
         ),
     )
 

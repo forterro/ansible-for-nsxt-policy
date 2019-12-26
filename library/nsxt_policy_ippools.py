@@ -15,6 +15,13 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_execution,
+)
+
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -26,53 +33,58 @@ DOCUMENTATION = """
 ---
 module: nsxt_policy_ippools
 
-short_description: Empty template to allows to develop quickly modules for nsx-t api policy
+short_description: Manage NSX-T ippools  with policy APIS
 
-description:
+description: Manage NSX-T ippools  with policy APIS
 
 version_added: "2.9"
 
 author: Olivier Gintrand
 
 options:
-    hostname:
-        description: Deployed NSX manager hostname.
-        required: true
-        type: str
-    username:
-        description: The username to authenticate with the NSX manager.
-        required: true
-        type: str
-    password:
-        description: The password to authenticate with the NSX manager.
-        required: true
-        type: str
-    validate_certs:
-        description: Insecure connection to NSX manager.
-        required: false
-        default: true
-        type: boolean
-    port:
-        description: NSX manager api port
-        required: false
-        default: 443
-        type: int
-    state:
-        choices:
-        - present
-        - absent
-        description: "State can be either 'present' or 'absent'.
-                    'present' is used to create or update resource.
-                    'absent' is used to delete resource."
-        required: true
-    display_name:
-        description: Display name
-        required: true
-        type: str
+  hostname:
+    description: Deployed NSX manager hostname.
+    required: true
+    type: str
+  username:
+    description: The username to authenticate with the NSX manager.
+    required: true
+    type: str
+  password:
+    description: The password to authenticate with the NSX manager.
+    required: true
+    type: str
+  validate_certs:
+    description: Insecure connection to NSX manager.
+    required: false
+    default: true
+    type: boolean
+  port:
+    description: NSX manager api port
+    required: false
+    default: 443
+    type: int
+  state:
+    choices:
+      - present
+      - absent
     description:
-        description: Description
-        required: false
-        type: str
+        - "State can be either 'present' or 'absent'."
+        - "'present' is used to create or update resource."
+        - "'absent' is used to delete resource."
+    required: true
+    type: str
+  display_name:
+    description:
+        - "Identifier to use when displaying entity in logs or GUI"
+        - "Maximum length 255"
+    required: true
+    type: str
+  description:
+    description:
+        - "Description"
+    required: false
+    type: str
 """
 
 EXAMPLES = """
@@ -86,13 +98,6 @@ nsxt_policy_ippools:
 """
 
 RETURN = """# """
-
-from ansible.module_utils.vmware_nsxt_policy_apis import (
-    vmware_argument_spec,
-    nsx_module_execution,
-    get_nsx_module_params,
-)
-from ansible.module_utils.basic import AnsibleModule
 
 
 def main():

@@ -15,6 +15,13 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_execution,
+    get_nsx_module_params,
+)
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -28,82 +35,146 @@ module: nsxt_policy_segments
 
 short_description: Manage a segment with policy APIS (logical switch)
 
-description:
+description: Manage a segment with policy APIS (logical switch)
 
 version_added: "2.9"
 
 author: Olivier Gintrand
 
 options:
-    hostname:
-        description: Deployed NSX manager hostname.
-        required: true
-        type: str
-    username:
-        description: The username to authenticate with the NSX manager.
-        required: true
-        type: str
-    password:
-        description: The password to authenticate with the NSX manager.
-        required: true
-        type: str
-    validate_certs:
-        description: Insecure connection to NSX manager.
-        required: false
-        default: true
-        type: boolean
-    port:
-        description: NSX manager api port
-        required: false
-        default: 443
-        type: int
-    state:
-        choices:
-        - present
-        - absent
-        description: "State can be either 'present' or 'absent'.
-                    'present' is used to create or update resource.
-                    'absent' is used to delete resource."
-        required: true
-    display_name:
-        description: Display name
-        required: true
-        type: str
+  hostname:
+    description: Deployed NSX manager hostname.
+    required: true
+    type: str
+  username:
+    description: The username to authenticate with the NSX manager.
+    required: true
+    type: str
+  password:
+    description: The password to authenticate with the NSX manager.
+    required: true
+    type: str
+  validate_certs:
+    description: Insecure connection to NSX manager.
+    required: false
+    default: true
+    type: boolean
+  port:
+    description: NSX manager api port
+    required: false
+    default: 443
+    type: int
+  state:
+    choices:
+      - present
+      - absent
     description:
-        description: Description
-        required: false
-        type: str
+        - "State can be either 'present' or 'absent'."
+        - "'present' is used to create or update resource."
+        - "'absent' is used to delete resource."
+    required: true
+    type: str
+  display_name:
+    description:
+        - "Identifier to use when displaying entity in logs or GUI"
+        - "Maximum length 255"
+    required: true
+    type: str
+  description:
+    description:
+        - "Description"
+    required: false
+    type: str
     vlan_ids:
-        description: list of vlans or vlan ranges to be associated.
-                     Mutually exclusive with subnets and connectivity_path.
-                     Make sure associated transport zone is vlan zone.
+        description:
+            - "VLAN ids for a VLAN backed Segment."
+            - "Can be a VLAN id or a range of VLAN ids specified with '-' in between."
         required: false
         type: list
+        elements: str
     connectivity_path:
-        description: path (formely /infra/tier-0s/<name> or /infra/tier-1s/<name>) of router
+        description:
+            - "Policy path to the connecting Tier-0 or Tier-1."
+            - "Valid only for segments created under Infra."
         required: false
         type: str
     transport_zone_path:
-        description: path (formely /infra/sites/default/enforcement-points/default/transport-zones/<id>) for transport zone.
-                     Be sure transport zone type is accorded to segment type (vlan or overlay)
-        required: true
+        description:
+            - "Policy path to the transport zone. Supported for VLAN backed segments as well as Overlay Segments."
+            - "This field is required for VLAN backed Segments."
+            - "Auto assigned if only one transport zone exists in the enforcement point."
+            - "Default transport zone is auto assigned for overlay segments if none specified."
+        required: false
         type: str
-    advanced_config
+    advanced_config:
         required: false
         type: dict
-        description:
-            Attributes are:
-                - address_pool_paths (list): path for ippool min(0) - max(1)
+        description: "Advanced configuration for Segment."
+        suboptions:
+            address_pool_paths:
+                description:
+                    - "Policy path to IP address pools."
+                    - "Maximum items: 1"
+                required: false
+                type: list
+                elements: str
+            connectivity:
+                description:
+                    - "Connectivity configuration to manually connect (ON) or disconnect (OFF)
+                        a logical entity from network topology."
+                required: false
+                type: str
+                choices:
+                    - "ON"
+                    - "OFF"
+                default: "ON"
+            hybrid:
+                description:
+                    - "Flag to identify a hybrid logical switch"
+                    - "When set to true, all the ports created on this segment will behave
+                        in a hybrid fashion. The hybrid port indicates to NSX that the
+                        VM intends to operate in underlay mode, but retains the ability to
+                        forward egress traffic to the NSX overlay network."
+                    - "This property is only applicable for segment created with transport
+                        zone type OVERLAY_STANDARD."
+                    - "This property cannot be modified after segment is created."
+                type: boolean
+                default: false
+            local_egress:
+                description:
+                    - "This property is used to enable proximity routing with local egress.
+                        When set to true, logical router interface (downlink) connecting
+                        Segment to Tier0/Tier1 gateway is configured with prefix-length 32.3"
+                type: boolean
+                default: false
+
     subnets:
         required: false
         type: list
         description:
-            Only for overlay segments
-            Max 1 subnet
-            attributes:
-                - gateway_address (str)(required) CIDR format xxx.xxx.xxx.xxx/yy
-                  network  (str)(required) CIDR format xxx.xxx.xxx.xxx/yy
-                  dhcp_ranges: array of ipElement. Need to configure dhcp on connected routed
+            - "Only for overlay segments"
+            - "Max 1 subnet"
+        suboptions:
+            gateway_address:
+                description:
+                    - "Gateway IP address in CIDR format for both IPv4 and IPv6."
+                type: str
+                required: true
+            network:
+                description:
+                    - "Network CIDR for this subnet calculated from gateway_addresses and prefix_len"
+                type: str
+                required: true
+            dhcp_ranges:
+                description:
+                    - "DHCP address ranges are used for dynamic IP allocation."
+                    - "Supports address range and CIDR formats. First valid
+                        host address from the first value is assigned to DHCP server
+                        IP address. Existing values cannot be deleted or modified,
+                        but additional DHCP ranges can be added."
+                    - "Minimum item: 1"
+                required: false
+                type: list
 """
 
 EXAMPLES = """
@@ -148,13 +219,6 @@ nsxt_policy_segments:
 
 
 RETURN = """# """
-
-from ansible.module_utils.vmware_nsxt_policy_apis import (
-    vmware_argument_spec,
-    nsx_module_execution,
-    get_nsx_module_params,
-)
-from ansible.module_utils.basic import AnsibleModule
 
 
 def main():

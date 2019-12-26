@@ -15,6 +15,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_execution,
+)
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -26,9 +32,9 @@ DOCUMENTATION = """
 ---
 module: nsxt_policy_ippools_static_subnets
 
-short_description: Empty template to allows to develop quickly modules for nsx-t api policy
+short_description: Manage NSX-T ippool static subnets  with policy APIS
 
-description:
+description: Manage NSX-T ippool static subnets  with policy APIS
 
 version_added: "2.9"
 
@@ -79,16 +85,20 @@ options:
         type: str
     allocation_ranges:
         description: Allocation range for ippool adresses
-         - start: Start ip address for range
-            end: End ip address for range
         required: true
         type: list
+        suboptions:
+            start:
+                description: Start ip address for range
+            end:
+                description: End ip address for range
+
     cidr:
-        description: CIDR network addresss for range eg : 10.0.0.0/24
+        description: "CIDR network addresss for range eg : 10.0.0.0/24"
         required: true
         type: str
     dns_nameservers:
-        description: List of dns servers (max 3)
+        description: "List of dns servers (max 3)"
         required: false
         type: list
     dns_suffic:
@@ -96,7 +106,7 @@ options:
         required: false
         type: str
     gateway_ip:
-        description: IP Address for gateway eg : 10.0.0.1
+        description: "IP Address for gateway eg : 10.0.0.1"
         required: false
         type: str
 """
@@ -124,14 +134,6 @@ nsxt_policy_ippools_static_subnets:
 """
 
 RETURN = """# """
-
-
-from ansible.module_utils.vmware_nsxt_policy_apis import (
-    vmware_argument_spec,
-    nsx_module_execution,
-    get_nsx_module_params,
-)
-from ansible.module_utils.basic import AnsibleModule
 
 
 def main():

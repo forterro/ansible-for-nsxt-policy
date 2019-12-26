@@ -15,6 +15,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_facts_execution,
+)
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -28,7 +34,9 @@ module: nsxt_policy_ippools_static_subnets_facts
 
 short_description: Get NSX-T ippools_static_subnets facts from policy APIS
 
-description:
+description: >
+    Returns list of ippool static subnets and their config if display name is not provided, returns config for
+    ippool static subnet if display name is provided
 
 version_added: "2.9"
 
@@ -93,12 +101,6 @@ register: nsxt_ippools_static_subnets
 
 
 RETURN = """# """
-
-from ansible.module_utils.vmware_nsxt_policy_apis import (
-    vmware_argument_spec,
-    nsx_module_facts_execution,
-)
-from ansible.module_utils.basic import AnsibleModule
 
 
 def main():

@@ -15,6 +15,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.vmware_nsxt_policy_apis import (
+    vmware_argument_spec,
+    nsx_module_facts_execution,
+)
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -24,11 +30,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_tier0s_locale_services_facts
+module: nsxt_policy_router_locale_services_facts
 
-short_description: Get NSX-T tier0s_locale_services_locale_services facts from policy APIS
+short_description: Get NSX-T router_locale_services_locale_services facts from policy APIS
 
-description:
+description: >
+    Returns list of locale services for a router and their config if display name is not provided, returns config for
+    locale service for a router if display name is provided
 
 version_added: "2.9"
 
@@ -62,7 +70,11 @@ options:
         required: false
         type: str
     tier0:
-        description: Identifier for concerned tier0 (display_name)
+        description: Identifier for concerned tier0 (display_name), mutually exclusive with tier1
+        required: true
+        type: str
+    tier1:
+        description: Identifier for concerned tier1 (display_name), mutually exclusive with tier0
         required: true
         type: str
 """
@@ -70,50 +82,57 @@ options:
 EXAMPLES = """
 
 # Returns facts for one tier0
-nsxt_policy_tier0s_locale_services_facts:
+nsxt_policy_router_locale_services_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    display_name: "My_first_tier0s_locale_services"
+    display_name: "My_first_router_locale_services"
     tier0: "my_tier0"
 register: nsxt_tier0
 
-# Returns facts for all tier0s_locale_services
-nsxt_policy_tier0s_locale_services_facts:
+# Returns facts for all router_locale_services
+nsxt_policy_router_locale_services_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
     tier0: "my_tier0"
-register: nsxt_tier0s_locale_services
+register: nsxt_router_locale_services
 
 """
 
 
 RETURN = """# """
 
-from ansible.module_utils.vmware_nsxt_policy_apis import (
-    vmware_argument_spec,
-    nsx_module_facts_execution,
-)
-from ansible.module_utils.basic import AnsibleModule
-
 
 def main():
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         display_name=dict(required=False, type="str"),
-        tier0=dict(required=True, type="str"),
+        tier0=dict(required=False, type="str"),
+        tier1=dict(required=False, type="str"),
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        mutually_exclusive=[["tier0", "tier1"]],
+    )
 
     api_endpoint = "locale-services"
     object_def = "locale-service"
-    manager_url = "https://{}/policy/api/v1/infra/tier-0s/{}".format(
-        module.params["hostname"], module.params["tier0"]
-    )
+
+    if module.params["tier0"]:
+        manager_url = "https://{}/policy/api/v1/infra/tier-0s/{}".format(
+            module.params["hostname"], module.params["tier0"]
+        )
+    elif module.params["tier1"]:
+        manager_url = "https://{}/policy/api/v1/infra/tier-1s/{}".format(
+            module.params["hostname"], module.params["tier1"]
+        )
+    else:
+        module.fail_json(msg="Missing parameter tier0 or tier1")
 
     nsx_module_facts_execution(
         module=module,

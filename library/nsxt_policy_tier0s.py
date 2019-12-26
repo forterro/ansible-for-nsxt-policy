@@ -15,11 +15,12 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.module_utils.basic import AnsibleModule
+
 from ansible.module_utils.vmware_nsxt_policy_apis import (
     vmware_argument_spec,
     nsx_module_execution,
 )
-from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.1",
@@ -33,7 +34,9 @@ module: nsxt_policy_tier0s
 
 short_description: Manage a tier0 with policy APIS (logical north south router)
 
-description:
+description: >
+    This module can be used to create, update or delete a tier0 gateway for NSX-T.
+    To be able to delete a gateway, prior it's necessary to delete related objects to itself.
 
 version_added: "2.9"
 
@@ -66,80 +69,89 @@ options:
     choices:
       - present
       - absent
-    description:  "State can be either 'present' or 'absent'.
-                  'present' is used to create or update resource.
-                  'absent' is used to delete resource."
+    description:
+        - "State can be either 'present' or 'absent'."
+        - "'present' is used to create or update resource."
+        - "'absent' is used to delete resource."
     required: true
     type: str
   display_name:
-    description:  Identifier to use when displaying entity in logs or GUI
-                  Maximum length: 255
+    description:
+        - "Identifier to use when displaying entity in logs or GUI"
+        - "Maximum length 255"
     required: true
     type: str
   description:
-    description: Description
+    description:
+        - "Description"
     required: false
     type: str
   dhcp_config_paths:
-    description:  DHCP configuration for Segments connected to Tier-0
-                  DHCP configuration for Segments connected to Tier-0.
-                  DHCP service is configured in relay mode.
-                  Minimum items: 0
-                  Maximum items: 1
+    description:
+        - "DHCP configuration for Segments connected to Tier-0.
+            DHCP service is configured in relay mode."
+        - "Minimum items: 0"
+        - "Maximum items: 1"
     required: false
     type: list
   disable_firewall:
     description: Disable or enable gateway fiewall.
     required: false
     default: false
-    type: bool
+    type: boolean
   failover_mode:
-    description:  Determines the behavior when a Tier-0 instance in ACTIVE-STANDBY
-                  high-availability mode restarts after a failure. If set to
-                  PREEMPTIVE, the preferred node will take over, even if it causes
-                  another failure. If set to NON_PREEMPTIVE, then the instance that
-                  restarted will remain secondary. This property must not be populated
-                  unless the ha_mode property is set to ACTIVE_STANDBY.
+    description:
+        - "Determines the behavior when a Tier-0 instance in ACTIVE-STANDBY
+            high-availability mode restarts after a failure. If set to
+            PREEMPTIVE, the preferred node will take over, even if it causes
+            another failure. If set to NON_PREEMPTIVE, then the instance that
+            restarted will remain secondary."
+        - "This property must not be populated unless the ha_mode property is set to ACTIVE_STANDBY."
     required: false
-    default: NON_PREEMPTIVE
+    default: "NON_PREEMPTIVE"
     choices:
-      - NON_PREEMPTIVE
-      - PREEMPTIVE
+      - "NON_PREEMPTIVE"
+      - "PREEMPTIVE"
     type: str
   ha_mode:
-    description:  High-availability Mode for Tier-0
-                  Specify high-availability mode for Tier-0.
+    description: "Specify high-availability mode for Tier-0."
     required: false
-    default: ACTIVE_ACTIVE
+    default: "ACTIVE_ACTIVE"
     choices:
-      - ACTIVE_ACTIVE
-      - ACTIVE_STANDBY
+      - "ACTIVE_ACTIVE"
+      - "ACTIVE_STANDBY"
     type: str
   transit_subnets:
-    description:  Transit subnets in CIDR format
-                  Specify transit subnets that are used to assign addresses to logical links
-                  connecting tier-0 and tier-1s. Both IPv4 and IPv6 addresses are supported.
+    description:
+        - "Specify transit subnets that are used to assign addresses to logical links
+            connecting tier-0 and tier-1s."
+        - "Both IPv4 and IPv6 addresses are supported."
     required: false
-    default: ["100.64.0.0/16"]
+    default:
+      - "100.64.0.0/16"
     type: list
   internal_transit_subnets:
-    description:  Internal transit subnets in CIDR format
-                  Specify subnets that are used to assign addresses to logical links
-                  connecting service routers and distributed routers. Only IPv4
-                  addresses are supported.
-                  Maximum items: 1
+    description:
+        - "Specify subnets that are used to assign addresses to logical
+          links connecting service routers and distributed routers."
+        - "Only IPv4 addresses are supported."
+        - "Maximum items: 1"
     required: false
-    default: ["169.254.0.0/24"]
+    default:
+      - "169.254.0.0/24"
     type: list
   ipv6_profile_paths:
-    description:  IPv6 NDRA and DAD profiles configuration
-                  IPv6 NDRA and DAD profiles configuration on Tier0. Either or both
-                  NDRA and/or DAD profiles can be configured.
-                  Minimum items: 0
-                  Maximum items: 2
+    description:
+        - "IPv6 NDRA and DAD profiles configuration on Tier0. Either or both
+            NDRA and/or DAD profiles can be configured."
+        - "Minimum items: 0"
+        - "Maximum items: 2"
     required: false
-    default: ["/infra/ipv6-ndra-profiles/default", "/infra/ipv6-dad-profiles/default"]
+    default:
+      - "/infra/ipv6-ndra-profiles/default"
+      - "/infra/ipv6-dad-profiles/default"
     type: list
+
 """
 
 EXAMPLES = """
@@ -150,6 +162,7 @@ nsxt_policy_tier0s:
   password: "Vmware1!"
   validate_certs: false
   display_name: "My_first_tier0s"
+  state: present
   description: "My first tier0s automated created by Ansible for NSX-T policy"
 """
 
