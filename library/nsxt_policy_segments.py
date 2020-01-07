@@ -42,49 +42,49 @@ version_added: "2.9"
 author: Olivier Gintrand
 
 options:
-  hostname:
-    description: Deployed NSX manager hostname.
-    required: true
-    type: str
-  username:
-    description: The username to authenticate with the NSX manager.
-    required: true
-    type: str
-  password:
-    description: The password to authenticate with the NSX manager.
-    required: true
-    type: str
-  validate_certs:
-    description: Insecure connection to NSX manager.
-    required: false
-    default: true
-    type: boolean
-  port:
-    description: NSX manager api port
-    required: false
-    default: 443
-    type: int
-  state:
-    choices:
-      - present
-      - absent
+    hostname:
+        description: Deployed NSX manager hostname.
+        required: true
+        type: str
+    username:
+        description: The username to authenticate with the NSX manager.
+        required: true
+        type: str
+    password:
+        description: The password to authenticate with the NSX manager.
+        required: true
+        type: str
+    validate_certs:
+        description: Insecure connection to NSX manager.
+        required: false
+        default: true
+        type: boolean
+    port:
+        description: NSX manager api port
+        required: false
+        default: 443
+        type: int
+    state:
+        choices:
+        - present
+        - absent
+        description:
+            - "State can be either 'present' or 'absent'."
+            - "'present' is used to create or update resource."
+            - "'absent' is used to delete resource."
+        required: true
+        type: str
+    display_name:
+        description:
+            - "Identifier to use when displaying entity in logs or GUI"
+            - "Maximum length 255"
+        required: true
+        type: str
     description:
-        - "State can be either 'present' or 'absent'."
-        - "'present' is used to create or update resource."
-        - "'absent' is used to delete resource."
-    required: true
-    type: str
-  display_name:
-    description:
-        - "Identifier to use when displaying entity in logs or GUI"
-        - "Maximum length 255"
-    required: true
-    type: str
-  description:
-    description:
-        - "Description"
-    required: false
-    type: str
+        description:
+            - "Description"
+        required: false
+        type: str
     vlan_ids:
         description:
             - "VLAN ids for a VLAN backed Segment."
