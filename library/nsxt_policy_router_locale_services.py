@@ -209,10 +209,12 @@ def main():
             required=False,
             type="list",
             choices=[
+                "TIER0_STATIC",
+                "TIER0_CONNECTED",
                 "TIER1_STATIC",
                 "TIER0_EXTERNAL_INTERFACE",
                 "TIER0_LOOPBACK_INTERFACE",
-                "TIER0_SEGMENT:",
+                "TIER0_SEGMENT",
                 "TIER0_ROUTER_LINK",
                 "TIER0_SERVICE_INTERFACE",
                 "TIER0_DNS_FORWARDER_IP",

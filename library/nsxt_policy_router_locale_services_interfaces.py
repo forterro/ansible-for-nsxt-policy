@@ -202,7 +202,7 @@ def main():
     api_protected_params = []
 
     # Define params from ansible to remove for correct object as nsx api object
-    ansible_params_to_remove = ["locale_service", "tier0", "tier1"]
+    ansible_params_to_remove = ["locale_service", "tier0", "tier1", "type"]
 
     if module.params["tier0"]:
         manager_url = "https://{}/policy/api/v1/infra/tier-0s/{}/locale-services/{}".format(

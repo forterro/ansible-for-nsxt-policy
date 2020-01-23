@@ -244,7 +244,7 @@ def main():
     api_endpoint = "segments"
     object_def = "segment"
 
-    api_params_to_remove = ["resource_type"]
+    api_params_to_remove = ["resource_type", "type"]
     api_protected_params = ["transport_zone_path"]
     ansible_params_to_remove = []
 
@@ -252,6 +252,7 @@ def main():
 
     # update advanced config
     if module.params.__contains__("advanced_config"):
+        module.params["advanced_config"] = {}
         module.params["advanced_config"]["hybrid"] = False
         module.params["advanced_config"]["local_egress"] = False
         module.params["advanced_config"]["connectivity"] = "ON"

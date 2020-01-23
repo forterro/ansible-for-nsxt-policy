@@ -30,13 +30,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_edgeclusters_facts
+module: nsxt_policy_edges_facts
 
-short_description: Get NSX-T edgeclusters facts from policy APIS
+short_description: Get NSX-T edges facts from policy APIS
 
 description: >
-    Returns list of edgecluster and their config if display name is not provided, returns config for
-    edgecluster if display name is provided
+    Returns list of edge and their config if display name is not provided, returns config for
+    edge if display name is provided
 
 version_added: "2.9"
 
@@ -69,6 +69,10 @@ options:
         description: Display name
         required: false
         type: str
+    cluster_id:
+        description: NSX edge cluster ID
+        required: true
+        type: str
     site:
         description: NSX site
         required: false
@@ -84,22 +88,24 @@ options:
 
 EXAMPLES = """
 
-# Returns facts for one edgecluster
-nsxt_policy_edgeclusters_facts:
+# Returns facts for one edge
+nsxt_policy_edges_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    display_name: "My_first_edgeclusters"
-register: nsxt_edgecluster
+    display_name: "My_first_edges"
+    cluster_id: "812093c4-7083-4c07-a668-5e96a1d3c6a4"
+register: nsxt_edge
 
-# Returns facts for all edgeclusters
-nsxt_policy_edgeclusters_facts:
+# Returns facts for all edges
+nsxt_policy_edges_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-register: nsxt_edgeclusters
+    cluster_id: "812093c4-7083-4c07-a668-5e96a1d3c6a4"
+register: nsxt_edges
 
 """
 
@@ -111,18 +117,20 @@ def main():
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         display_name=dict(required=False, type="str"),
+        cluster_id=dict(required=True, type="str"),
         site=dict(required=False, default="default", type="str"),
         enforcement_point=dict(required=False, default="default", type="str"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    api_endpoint = "edge-clusters"
-    object_def = "edge-cluster"
-    manager_url = "https://{}/policy/api/v1/infra/sites/{}/enforcement-points/{}".format(
+    api_endpoint = "edge-nodes"
+    object_def = "edge-node"
+    manager_url = "https://{}/policy/api/v1/infra/sites/{}/enforcement-points/{}/edge-clusters/{}".format(
         module.params["hostname"],
         module.params["site"],
         module.params["enforcement_point"],
+        module.params["cluster_id"],
     )
 
     nsx_module_facts_execution(
