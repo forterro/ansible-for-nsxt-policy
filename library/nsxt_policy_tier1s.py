@@ -291,7 +291,7 @@ def main():
     api_protected_params = ["ha_mode", "transit_subnets", "internal_transit_subnets"]
 
     # Define params from ansible to remove for correct object as nsx api object
-    ansible_params_to_remove = []
+    ansible_params_to_remove = ["type"]
 
     manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
 
