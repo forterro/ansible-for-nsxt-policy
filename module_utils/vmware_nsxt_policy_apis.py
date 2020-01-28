@@ -15,6 +15,8 @@ import json, time, requests, urllib3
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 from requests.auth import HTTPBasicAuth
+from deepdiff import DeepDiff
+from pprint import pprint
 
 
 def vmware_argument_spec():
@@ -84,6 +86,104 @@ def request(
         raise Exception(data["error_code"], data)
     else:
         return resp_code, data
+
+
+# def order_dict(dictionary):
+#     result = {}
+#     for k, v in sorted(dictionary.items()):
+#         if isinstance(v, dict):
+#             result[k] = order_dict(v)
+#         elif isinstance(v, list):
+#             for e in v:
+#                 if isinstance(e, dict):
+#                     for sk, sv in sorted(e.items()):
+#                         if isinstance(sv, dict):
+#                             result[sk] = order_dict(sv)
+#                         elif isinstance(sv, list):
+#                             sv.sort()
+#                         else:
+#                             result[sk] = sv
+#                 elif isinstance(e, list):
+#                     result[k] = sorted(e)
+#                 else:
+#                     result[k] = e
+#         else:
+#             result[k] = v
+#     return result
+
+
+def sort_key_func(item):
+    """ helper function used to sort list of dicts
+
+    :param item: dict
+    :return: sorted list of tuples (k, v)
+    """
+    pairs = []
+    for k, v in item.items():
+        pairs.append((k, v))
+    return sorted(pairs)
+
+
+def recurse_compare_dict(d1, d2, is_different=False):
+    # Compare keys
+    d1_keys = set(d1.keys())
+    d2_keys = set(d2.keys())
+    d1_d2_key_diff = d1_keys ^ d2_keys
+    if bool(d1_d2_key_diff):
+        print("dict attributes are differents ! %s" % (d1_d2_key_diff))
+        is_different = True
+    # Compare recursively
+    else:
+        for k, v in sorted(d1.items()):
+            if isinstance(v, dict):
+                is_different = recurse_compare_dict(v, d2[k], is_different)
+            elif isinstance(v, list):
+                if len(v) != len(d2[k]):
+                    print(
+                        "list size differs, it's different ! d1 list : %s - d2 list : %s"
+                        % (v, d2[k])
+                    )
+                    is_different = True
+                else:
+                    index = 0
+
+                    if len(v) > 0 and isinstance(v[0], dict):
+                        v_keys = set(v[0].keys())
+                        ordered_v = sorted(
+                            v,
+                            key=lambda d: next(
+                                (i for (i, y) in enumerate(v_keys) if y in d),
+                                len(v_keys) + 1,
+                            ),
+                        )
+                        ordered_d2 = sorted(
+                            d2[k],
+                            key=lambda d: next(
+                                (i for (i, y) in enumerate(v_keys) if y in d),
+                                len(v_keys) + 1,
+                            ),
+                        )
+                        for e in ordered_v:
+                            if isinstance(e, dict):
+                                is_different = recurse_compare_dict(
+                                    e, ordered_d2[index], is_different
+                                )
+                            else:
+                                if str(e) != str(ordered_d2[index]):
+                                    print(
+                                        "value differs, it's different ! d1 value : %s - d2 value %s"
+                                        % (e, ordered_d2[index])
+                                    )
+                                    is_different = True
+                            index += 1
+            else:
+                if str(v) != str(d2[k]):
+                    print(
+                        "value differs, it's different ! d1 value : %s - d2 value %s"
+                        % (v, d2[k])
+                    )
+                    is_different = True
+    return is_different
 
 
 # Remove vmware_nsxt module util parameters and return specific params for this nsx-t module
@@ -198,14 +298,8 @@ def get_nsx_object(
 def check_for_update(module, object, params, params_to_remove, protected_params):
     clean_object = remove_api_params(object=object, params_to_remove=params_to_remove)
 
-    print(
-        "Debug object in check_for_update : [%s]"
-        % json.dumps(clean_object, sort_keys=True)
-    )
-    print(
-        "Debug params in check_for_update : [%s]" % json.dumps(params, sort_keys=True)
-    )
-
+    print("Debug - object returned by api : %s" % (clean_object))
+    print("Debug - object passed in params : %s" % (params))
     for key in protected_params:
         if (
             (clean_object.__contains__(key) and not params.__contains__(key))
@@ -221,9 +315,10 @@ def check_for_update(module, object, params, params_to_remove, protected_params)
                 % (key)
             )
 
-    if json.dumps(clean_object, sort_keys=True) != json.dumps(params, sort_keys=True):
-        return True
-    return False
+    result = recurse_compare_dict(params, clean_object)
+    pprint("Is different ? : " + str(result))
+
+    return result
 
 
 def create_or_update_nsx_object(

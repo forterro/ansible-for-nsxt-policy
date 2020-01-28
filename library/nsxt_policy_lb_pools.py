@@ -349,7 +349,7 @@ def main():
     object_def = "lb-pool"  # Define object name (eg: segment)
 
     # Define api params to remove from returned object to get same object as ansible object
-    api_params_to_remove = []
+    api_params_to_remove = ["resource_type"]
 
     # Define read only params to fail module if call try to update
     api_protected_params = []
@@ -359,7 +359,13 @@ def main():
 
     manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
 
-    module.params["resource_type"] = "LBTcpMonitorProfile"
+    if not bool(module.params["snat_translation"]):
+        module.params["snat_translation"] = {}
+        module.params["snat_translation"]["type"] = "LBSnatAutoMap"
+
+    if bool(module.params["member_group"]):
+        if not "ip_revision_filter" in module.params["member_group"]:
+            module.params["member_group"]["ip_revision_filter"] = "IPV4"
 
     nsx_module_execution(
         module=module,

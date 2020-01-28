@@ -164,6 +164,7 @@ def main():
         connectivity_path=dict(required=False, type="str"),
         enabled=dict(required=False, type="bool", default=True),
         error_log_level=dict(required=False, type="str", default="INFO"),
+        access_log_enabled=dict(required=False, type="bool", default=False),
         size=dict(required=False, type="str", default="SMALL"),
         tags=dict(required=False, type="list"),
     )
@@ -174,7 +175,7 @@ def main():
     object_def = "lb-service"  # Define object name (eg: segment)
 
     # Define api params to remove from returned object to get same object as ansible object
-    api_params_to_remove = []
+    api_params_to_remove = ["resource_type"]
 
     # Define read only params to fail module if call try to update
     api_protected_params = []
@@ -183,8 +184,6 @@ def main():
     ansible_params_to_remove = []
 
     manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
-
-    module.params["resource_type"] = "LBService"
 
     nsx_module_execution(
         module=module,

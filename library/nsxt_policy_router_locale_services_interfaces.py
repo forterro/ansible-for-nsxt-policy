@@ -190,7 +190,7 @@ def main():
         tier1=dict(required=False, type="str"),
         locale_service=dict(required=True, type="str"),
         ipv6_profile_paths=dict(
-            required=False, type="list", Default=["/infra/ipv6-ndra-profiles/default"]
+            required=False, type="list", default=["/infra/ipv6-ndra-profiles/default"]
         ),
         mtu=dict(required=False, type="int"),
         segment_path=dict(required=True, type="str"),
@@ -218,7 +218,7 @@ def main():
     api_protected_params = []
 
     # Define params from ansible to remove for correct object as nsx api object
-    ansible_params_to_remove = ["locale_service", "tier0", "tier1", "type"]
+    ansible_params_to_remove = ["locale_service", "tier0", "tier1"]
 
     if module.params["tier0"]:
         manager_url = "https://{}/policy/api/v1/infra/tier-0s/{}/locale-services/{}".format(
@@ -227,6 +227,7 @@ def main():
             module.params["locale_service"],
         )
         module.params["resource_type"] = "Tier0Interface"
+        ansible_params_to_remove += ["type"]
     elif module.params["tier1"]:
         manager_url = "https://{}/policy/api/v1/infra/tier-1s/{}/locale-services/{}".format(
             module.params["hostname"],

@@ -310,7 +310,7 @@ def main():
     object_def = "lb-virtual-server"  # Define object name (eg: segment)
 
     # Define api params to remove from returned object to get same object as ansible object
-    api_params_to_remove = []
+    api_params_to_remove = ["resource_type"]
 
     # Define read only params to fail module if call try to update
     api_protected_params = []
@@ -319,8 +319,6 @@ def main():
     ansible_params_to_remove = []
 
     manager_url = "https://{}/policy/api/v1/infra".format(module.params["hostname"])
-
-    module.params["resource_type"] = "LBVirtualServer"
 
     nsx_module_execution(
         module=module,
