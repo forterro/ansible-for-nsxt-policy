@@ -236,6 +236,8 @@ def create_or_update_nsx_object(
     params,
     display_name,
     object_def,
+    update_method,
+    post_action=None,
 ):
     if module.check_mode:
         module.exit_json(
@@ -247,15 +249,27 @@ def create_or_update_nsx_object(
         headers["Content-Type"] = "application/json"
 
         request_data = json.dumps(params)
-        (rc, resp) = request(
-            url=manager_url + "/" + api_endpoint + "/%s" % display_name,
-            headers=headers,
-            data=request_data,
-            method="PATCH",
-            url_username=mgr_username,
-            url_password=mgr_password,
-            validate_certs=validate_certs,
-        )
+        if update_method == "PATCH":
+            (rc, resp) = request(
+                url=manager_url + "/" + api_endpoint + "/%s" % display_name,
+                headers=headers,
+                data=request_data,
+                method="PATCH",
+                url_username=mgr_username,
+                url_password=mgr_password,
+                validate_certs=validate_certs,
+            )
+        elif update_method == "POST":
+            (rc, resp) = request(
+                url=manager_url + "/" + api_endpoint + "?action=%s" % post_action,
+                headers=headers,
+                data=request_data,
+                method="POST",
+                url_username=mgr_username,
+                url_password=mgr_password,
+                validate_certs=validate_certs,
+            )
+
     except Exception as err:
         module.fail_json(
             msg="Failed to create or update %s with name %s. Error[%s]."
@@ -316,6 +330,8 @@ def nsx_module_execution(
     api_params_to_remove,
     api_protected_params,
     ansible_params_to_remove,
+    update_method="PATCH",
+    post_action=None,
 ):
 
     nsx_module_params = get_nsx_module_params(
@@ -366,6 +382,8 @@ def nsx_module_execution(
                 params=nsx_module_params,
                 display_name=display_name,
                 object_def=object_def,
+                update_method=update_method,
+                post_action=post_action,
             )
         else:
             module.exit_json(

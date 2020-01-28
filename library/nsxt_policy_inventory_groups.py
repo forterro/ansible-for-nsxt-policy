@@ -98,18 +98,39 @@ options:
                 500."
             - "4. Each expression must be a valid Expression. See the definition of
                 the Expression type for more information."
+            - "See examples below to use expressions
+            - "Documentations for expression types"
+            - "Condition : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.Condition"
+            - "ConjunctionOperator : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.Condition"
+            - "ExternalIDExpression : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.ExternalIDExpression"
+            - "IPAddressExpression : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.IPAddressExpression"
+            - "IdentityGroupExpression : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.IdentityGroupExpression"
+            - "MACAddressExpression : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.MACAddressExpression"
+            - "NestedExpression : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.NestedExpression"
+            - "PathExpression : https://vdc-download.vmware.com/vmwb-repository/dcr-public/6c24b5c0-396a-4152-9125-bd10a795836b/74043a09-7320-40ac-ac85-9416d0f9cd01/nsx_25_api.html#Type.PathExpression"
         type: list
         required: false
-        suboptions:
-            description:
-                description: "Description of this resource"
-                required: false
-                type: str
-            display_name:
-                description: " 	Identifier to use when displaying entity in logs or GUI"
-                required: false
-                type: str
+    extended_expression:
+        description:
+            - "Extended Expression allows additional higher level context to be
+                specified for grouping criteria. (e.g. user AD group)
+                This field allow users to specified user context as the source of a
+                firewall rule for IDFW feature.
+                Current version only support a single IdentityGroupExpression. In the
+                future, this might expand to support other conjunction and non-conjunction
+                expression."
 
+            - "The extended expression list must follow below criteria:"
+            - "1. Contains a single IdentityGroupExpression. No conjunction expression is
+            supported.3
+            - "2. No other non-conjunction expression is supported, except for
+            IdentityGroupExpression."
+            - "3. Each expression must be a valid Expression. See the definition of
+            the Expression type for more information."
+            - "4. Extended expression are implicitly AND with expression."
+            - "5. No nesting can be supported if this value is used."
+            - "6. If a Group is using extended expression, this group must be the only
+            member in the source field of an communication map."
 """
 
 EXAMPLES = """
@@ -120,7 +141,21 @@ nsxt_policy_inventory_groups:
     validate_certs: false
     display_name: "My_first_ippool_static_subnet"
     description: "My first inventory_groups automated created by Ansible for NSX-T policy"
-
+    expression:
+        - member_type: "VirtualMachine"
+          value: "role|webvm"
+          key: "Tag"
+          operator: "EQUALS"
+          resource_type: "Condition"
+        - resource_type: "ConjunctionOperator"
+          conjunction_operator: "OR"
+        - member_type: "VirtualMachine"
+          value: "scope|value"
+          key: "Tag"
+          operator: "EQUALS"
+          resource_type: "Condition"
+      }
+    ]
 """
 
 RETURN = """# """
@@ -133,6 +168,8 @@ def main():
         description=dict(required=False, type="str"),
         state=dict(required=True, choices=["present", "absent"]),
         domain=dict(required=False, type="str", default="default"),
+        expression=dict(required=False, type="list"),
+        extended_expression=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
@@ -141,13 +178,18 @@ def main():
     object_def = "group"  # Define object name (eg: segment)
 
     # Define api params to remove from returned object to get same object as ansible object
-    api_params_to_remove = []
+    api_params_to_remove = ["resource_type"]
 
     # Define read only params to fail module if call try to update
     api_protected_params = []
 
     # Define params from ansible to remove for correct object as nsx api object
-    ansible_params_to_remove = []
+    ansible_params_to_remove = ["domain"]
+
+    # Update expression object for indempotence
+    for member in module.params["expression"]:
+        member["_protection"] = "NOT_PROTECTED"
+        member["marked_for_delete"] = False
 
     manager_url = "https://{}/policy/api/v1/infra/domains/{}".format(
         module.params["hostname"], module.params["domain"]
