@@ -111,6 +111,21 @@ options:
         description:  Cost associated with next hop route
         required: true
         type: int
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
+
 """
 
 EXAMPLES = """
@@ -143,6 +158,7 @@ def main():
         tier1=dict(required=False, type="str"),
         network=dict(required=True, type="str"),
         next_hops=dict(required=False, type="list"),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(

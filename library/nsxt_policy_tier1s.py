@@ -218,6 +218,21 @@ options:
       - "TIER1_LB_SNAT"
       - "TIER1_DNS_FORWARDER_IP"
       - "TIER1_IPSEC_LOCAL_ENDPOINT"
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
+
 """
 
 EXAMPLES = """
@@ -280,6 +295,7 @@ def main():
                 "TIER1_IPSEC_LOCAL_ENDPOINT",
             ],
         ),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

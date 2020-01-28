@@ -175,6 +175,21 @@ options:
                     - "Minimum item: 1"
                 required: false
                 type: list
+    tags:
+        description:
+            - "Opaque identifiers meaningful to the API user"
+            - "Maximum items : 30"
+        type: list
+        suboptions:
+            scope:
+                description: "Tag searches may optionally be restricted by scope"
+                required: false
+                type: str
+            tag:
+                description: "Identifier meaningful to user with maximum length of 256 characters"
+                required: true
+                type: str
+
 """
 
 EXAMPLES = """
@@ -233,6 +248,7 @@ def main():
         advanced_config=dict(required=False, type="dict"),
         subnets=dict(required=False, type="list"),
         domain_name=dict(required=False, type="str"),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(

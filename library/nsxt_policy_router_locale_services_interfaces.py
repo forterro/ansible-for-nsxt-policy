@@ -144,6 +144,21 @@ options:
       - SERVICE
       - LOOPBACK
     default: EXTERNAL
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
+
 """
 
 EXAMPLES = """
@@ -187,6 +202,7 @@ def main():
             choices=["EXTERNAL", "SERVICE", "LOOPBACK"],
             default="EXTERNAL",
         ),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(

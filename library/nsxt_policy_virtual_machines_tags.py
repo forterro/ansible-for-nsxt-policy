@@ -114,7 +114,6 @@ def get_vm(vm_name, manager_url, mgr_username, mgr_password, validate_certs):
             msg="Error getting  %s objects list. Error [%s]"
             % (object_def, to_native(err))
         )
-    print("call resusts : " + str(resp))
     for vm in resp["results"]:
         if vm["display_name"] == vm_name:
             my_vm = vm
@@ -139,8 +138,6 @@ def update_tags(
         params["tags"] = tags
         params["virtual_machine_id"] = vm["external_id"]
         request_data = json.dumps(params)
-        print("Request data : " + request_data)
-        print("Update url : " + manager_url)
 
         (rc, resp) = request(
             url=manager_url,
@@ -183,7 +180,6 @@ def main():
         base_url, module.params["enforcement_point"]
     )
 
-    print("module params : " + str(module.params))
     vm = get_vm(
         vm_name=module.params["virtual_machine"],
         manager_url=get_vm_url,
@@ -193,12 +189,11 @@ def main():
     )
 
     if vm:
-        print("virtual machine id : " + vm["host_id"])
-        current_tags = sorted(vm["tags"], key=lambda tup: tup["tag"])
+        if "tags" in vm:
+            current_tags = sorted(vm["tags"], key=lambda tup: tup["tag"])
+        else:
+            current_tags = []
         needed_tags = sorted(module.params["tags"], key=lambda tup: tup["tag"])
-
-        print("Show current tags : " + str(current_tags))
-        print("Show needed tags : " + str(needed_tags))
 
         if str(current_tags) != str(needed_tags):
             update_tags(

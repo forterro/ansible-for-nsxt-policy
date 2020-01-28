@@ -151,6 +151,20 @@ options:
       - "/infra/ipv6-ndra-profiles/default"
       - "/infra/ipv6-dad-profiles/default"
     type: list
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
 
 """
 
@@ -203,6 +217,7 @@ def main():
                 "/infra/ipv6-dad-profiles/default",
             ],
         ),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

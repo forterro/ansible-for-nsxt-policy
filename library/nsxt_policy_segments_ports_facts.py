@@ -30,13 +30,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_edges_facts
+module: nsxt_policy_segments_ports_facts
 
-short_description: Get NSX-T edges facts from policy APIS
+short_description: Get NSX-T segments ports facts from policy APIS
 
 description: >
-    Returns list of edge and their config if display name is not provided, returns config for
-    edge if display name is provided
+    Returns list of segments ports and their config if display name is not provided, returns config for
+    segment port if display name is provided
 
 version_added: "2.9"
 
@@ -69,57 +69,32 @@ options:
         description: Display name
         required: false
         type: str
-    cluster_id:
-        description: NSX edge cluster ID
+    segment:
+        description: "Display name for concerned segment"
         required: true
         type: str
-    site:
-        description: NSX site
-        required: false
-        type: str
-        default: default
-    enforcement_point:
-        description: NSX enforcement point
-        required: false
-        type: str
-        default: default
-    tags:
-        description:
-            - "Opaque identifiers meaningful to the API user"
-            - "Maximum items : 30"
-        type: list
-        suboptions:
-            scope:
-                description: "Tag searches may optionally be restricted by scope"
-                required: false
-                type: str
-            tag:
-                description: "Identifier meaningful to user with maximum length of 256 characters"
-                required: true
-                type: str
-
 """
 
 EXAMPLES = """
 
-# Returns facts for one edge
-nsxt_policy_edges_facts:
+# Returns facts for one segment
+nsxt_policy_segments_ports_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    display_name: "My_first_edges"
-    cluster_id: "812093c4-7083-4c07-a668-5e96a1d3c6a4"
-register: nsxt_edge
+    display_name: "My_first_segments"
+    segment: "my_segment"
+register: nsxt_segment_port
 
-# Returns facts for all edges
-nsxt_policy_edges_facts:
+# Returns facts for all segments
+nsxt_policy_segments_ports_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    cluster_id: "812093c4-7083-4c07-a668-5e96a1d3c6a4"
-register: nsxt_edges
+    segment: "my_segment"
+register: nsxt_segment_ports
 
 """
 
@@ -131,21 +106,16 @@ def main():
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         display_name=dict(required=False, type="str"),
-        cluster_id=dict(required=True, type="str"),
-        site=dict(required=False, default="default", type="str"),
-        enforcement_point=dict(required=False, default="default", type="str"),
-        tags=dict(required=False, type="list"),
+        segment=dict(required=True, type="str"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    api_endpoint = "edge-nodes"
-    object_def = "edge-node"
-    manager_url = "https://{}/policy/api/v1/infra/sites/{}/enforcement-points/{}/edge-clusters/{}".format(
-        module.params["hostname"],
-        module.params["site"],
-        module.params["enforcement_point"],
-        module.params["cluster_id"],
+    api_endpoint = "ports"
+    object_def = "port"
+
+    manager_url = "https://{}/policy/api/v1/infra/segments/{}".format(
+        module.params["hostname"], module.params["segment"]
     )
 
     nsx_module_facts_execution(

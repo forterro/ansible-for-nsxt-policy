@@ -109,6 +109,21 @@ options:
         description: "IP Address for gateway eg : 10.0.0.1"
         required: false
         type: str
+    tags:
+        description:
+            - "Opaque identifiers meaningful to the API user"
+            - "Maximum items : 30"
+        type: list
+        suboptions:
+            scope:
+                description: "Tag searches may optionally be restricted by scope"
+                required: false
+                type: str
+            tag:
+                description: "Identifier meaningful to user with maximum length of 256 characters"
+                required: true
+                type: str
+
 """
 
 EXAMPLES = """
@@ -151,6 +166,7 @@ def main():
         resource_type=dict(
             required=False, type="str", default="IpAddressPoolStaticSubnet"
         ),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

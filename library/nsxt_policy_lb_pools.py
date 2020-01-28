@@ -287,6 +287,21 @@ options:
     type: int
     default: 6
     required: false
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
+
 
 """
 
@@ -316,12 +331,6 @@ def main():
         display_name=dict(required=True, type="str"),
         description=dict(required=False, type="str"),
         state=dict(required=True, choices=["present", "absent"]),
-        fall_count=dict(required=False, type="int", default=3),
-        interval=dict(required=False, type="int", default=5),
-        monitor_port=dict(required=False, type="int"),
-        receive=dict(required=False, type="str"),
-        rise_count=dict(required=False, type="int", default=3),
-        send=dict(required=False, type="str"),
         active_monitor_paths=dict(required=False, type="list"),
         algorithm=dict(required=False, type="str", default="ROUND_ROBIN"),
         member_group=dict(required=False, type="dict"),
@@ -331,6 +340,7 @@ def main():
         snat_translation=dict(required=False, type="dict"),
         tcp_multiplexing_enabled=dict(required=False, type="bool", default=False),
         tcp_multiplexing_number=dict(required=False, type="int", default=6),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

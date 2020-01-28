@@ -173,6 +173,21 @@ options:
       - TIER1_SERVICE_INTERFACE: Redistribute Tier1 service interface subnets.
       - TIER1_SEGMENT: Redistribute subnets configured on Segments connected to Tier1.
       - TIER1_IPSEC_LOCAL_ENDPOINT: Redistribute IPSec VPN local-endpoint subnets advertised by TIER1.
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
+
 """
 
 EXAMPLES = """
@@ -230,6 +245,7 @@ def main():
                 "TIER1_IPSEC_LOCAL_ENDPOINT",
             ],
         ),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(

@@ -131,6 +131,21 @@ options:
             - "5. No nesting can be supported if this value is used."
             - "6. If a Group is using extended expression, this group must be the only
             member in the source field of an communication map."
+    tags:
+        description:
+            - "Opaque identifiers meaningful to the API user"
+            - "Maximum items : 30"
+        type: list
+        suboptions:
+            scope:
+                description: "Tag searches may optionally be restricted by scope"
+                required: false
+                type: str
+            tag:
+                description: "Identifier meaningful to user with maximum length of 256 characters"
+                required: true
+                type: str
+
 """
 
 EXAMPLES = """
@@ -170,6 +185,7 @@ def main():
         domain=dict(required=False, type="str", default="default"),
         expression=dict(required=False, type="list"),
         extended_expression=dict(required=False, type="list"),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)

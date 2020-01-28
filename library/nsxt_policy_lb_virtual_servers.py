@@ -247,6 +247,20 @@ options:
         by sorry server pool."
     required: false
     type: str
+  tags:
+      description:
+          - "Opaque identifiers meaningful to the API user"
+          - "Maximum items : 30"
+      type: list
+      suboptions:
+          scope:
+              description: "Tag searches may optionally be restricted by scope"
+              required: false
+              type: str
+          tag:
+              description: "Identifier meaningful to user with maximum length of 256 characters"
+              required: true
+              type: str
 
 
 """
@@ -287,6 +301,7 @@ def main():
         pool_path=dict(required=False, type="str"),
         ports=dict(required=True, type="list"),
         rules=dict(required=False, type="str"),
+        tags=dict(required=False, type="list"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
