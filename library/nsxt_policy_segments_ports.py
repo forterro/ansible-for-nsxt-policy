@@ -206,7 +206,7 @@ def main():
     api_endpoint = "ports"
     object_def = "port"
 
-    api_params_to_remove = []
+    api_params_to_remove = ["resource_type"]
     api_protected_params = []
     ansible_params_to_remove = ["segment"]
 

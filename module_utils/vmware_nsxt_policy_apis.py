@@ -208,6 +208,7 @@ def get_nsx_module_params(args=None, args_to_remove=None):
 
 # Remove unecessary api params to have similar object between ansible and api
 def remove_api_params(object, params_to_remove):
+    int_object = object
     api_params_to_remove = [
         "_links",
         "_schema",
@@ -229,11 +230,11 @@ def remove_api_params(object, params_to_remove):
     ]
     params_to_remove += api_params_to_remove
     for key in params_to_remove:
-        object.pop(key, None)
-    for key, value in object.copy().items():
+        int_object.pop(key, None)
+    for key, value in int_object.copy().items():
         if value == None:
-            object.pop(key, None)
-    return object
+            int_object.pop(key, None)
+    return int_object
 
 
 # Get all nsx-t objects for current api endpoint
@@ -291,6 +292,8 @@ def get_nsx_object(
             and object["display_name"] == display_name
         ):
             return object
+        elif object.__contains__("id") and object["id"] == display_name:
+            return object
     return None
 
 
@@ -314,10 +317,10 @@ def check_for_update(module, object, params, params_to_remove, protected_params)
                 msg="Parameter %s is protected. You cannot update this attribute."
                 % (key)
             )
-
-    result = recurse_compare_dict(params, clean_object)
-    pprint("Is different ? : " + str(result))
-
+    if bool(params) or bool(clean_object):
+        result = recurse_compare_dict(params, clean_object)
+    else:
+        result = False
     return result
 
 
@@ -452,11 +455,15 @@ def nsx_module_execution(
         object_def=object_def,
     )
 
+    if nsx_object:
+        exits_object = True
+    else:
+        exits_object = False
     # Present state
     if state == "present":
 
         # If object already exists, check for update
-        if nsx_object:
+        if exits_object:
             to_update = check_for_update(
                 module=module,
                 object=nsx_object,
@@ -466,7 +473,7 @@ def nsx_module_execution(
             )
 
         # Create or update NSX object
-        if not nsx_object or to_update:
+        if not exits_object or to_update:
             create_or_update_nsx_object(
                 module=module,
                 manager_url=manager_url,
