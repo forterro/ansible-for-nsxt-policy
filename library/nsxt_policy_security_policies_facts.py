@@ -30,13 +30,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_inventory_groups_facts
+module: nsxt_policy_security_policies_facts
 
-short_description: Get NSX-T inventory_groups facts from policy APIS
+short_description: Get NSX-T security_policies facts from policy APIS
 
 description: >
-    Returns list of inventory_groups and their config if display name is not provided, returns config for
-    ippool if display name is provided
+    Returns list of security_policies and their config if display name is not provided, returns config for
+    security_policy if display name is provided
 
 version_added: "2.9"
 
@@ -79,22 +79,22 @@ options:
 
 EXAMPLES = """
 
-# Returns facts for one ippool
-nsxt_policy_inventory_groups_facts:
+# Returns facts for one security_policy
+nsxt_policy_security_policies_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    display_name: "My_first_ippool"
-register: nsxt_ippool
+    display_name: "My_first_security_policy"
+register: nsxt_security_policy
 
-# Returns facts for all inventory_groups
-nsxt_policy_inventory_groups_facts:
+# Returns facts for all security_policies
+nsxt_policy_security_policies_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-register: nsxt_inventory_groups
+register: nsxt_security_policies
 
 """
 
@@ -111,8 +111,8 @@ def main():
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    api_endpoint = "groups"  # Define API endpoint for object (eg: segments)
-    object_def = "group"  # Define object name (eg: segment)
+    api_endpoint = "security-policies"  # Define API endpoint for object (eg: segments)
+    object_def = "security-policy"  # Define object name (eg: segment)
 
     manager_url = "https://{}/policy/api/v1/infra/domains/{}".format(
         module.params["hostname"], module.params["domain"]

@@ -203,9 +203,10 @@ def main():
     ansible_params_to_remove = ["domain"]
 
     # Update expression object for indempotence
-    for member in module.params["expression"]:
-        member["_protection"] = "NOT_PROTECTED"
-        member["marked_for_delete"] = False
+    if "expression" in module.params and bool(module.params["expression"]):
+        for member in module.params["expression"]:
+            member["_protection"] = "NOT_PROTECTED"
+            member["marked_for_delete"] = False
 
     manager_url = "https://{}/policy/api/v1/infra/domains/{}".format(
         module.params["hostname"], module.params["domain"]

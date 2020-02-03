@@ -30,13 +30,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: nsxt_policy_inventory_groups_facts
+module: nsxt_policy_segments_security_profiles_facts
 
-short_description: Get NSX-T inventory_groups facts from policy APIS
+short_description: Get NSX-T segments_security_profiles facts from policy APIS
 
 description: >
-    Returns list of inventory_groups and their config if display name is not provided, returns config for
-    ippool if display name is provided
+    Returns list of segments_security_profiles and their config if display name is not provided, returns config for
+    segment port if display name is provided
 
 version_added: "2.9"
 
@@ -69,32 +69,32 @@ options:
         description: Display name
         required: false
         type: str
-    domain:
-        description: Display name domain
-        required: false
-        default: default
+    segment:
+        description: "Display name for concerned segment"
+        required: true
         type: str
-    expression:
 """
 
 EXAMPLES = """
 
-# Returns facts for one ippool
-nsxt_policy_inventory_groups_facts:
+# Returns facts for one segment
+nsxt_policy_segments_security_profiles_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-    display_name: "My_first_ippool"
-register: nsxt_ippool
+    display_name: "My_first_segments"
+    segment: "my_segment"
+register: nsxt_segment_port
 
-# Returns facts for all inventory_groups
-nsxt_policy_inventory_groups_facts:
+# Returns facts for all segments
+nsxt_policy_segments_security_profiles_facts:
     hostname: "nsxvip.domain.local"
     username: "admin"
     password: "Vmware1!"
     validate_certs: false
-register: nsxt_inventory_groups
+    segment: "my_segment"
+register: nsxt_segment_ports
 
 """
 
@@ -106,16 +106,16 @@ def main():
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         display_name=dict(required=False, type="str"),
-        domain=dict(required=False, type="str", default="default"),
+        segment=dict(required=True, type="str"),
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    api_endpoint = "groups"  # Define API endpoint for object (eg: segments)
-    object_def = "group"  # Define object name (eg: segment)
+    api_endpoint = "segment-security-profile-binding-maps"
+    object_def = "segment-security-profile-binding-map"
 
-    manager_url = "https://{}/policy/api/v1/infra/domains/{}".format(
-        module.params["hostname"], module.params["domain"]
+    manager_url = "https://{}/policy/api/v1/infra/segments/{}".format(
+        module.params["hostname"], module.params["segment"]
     )
 
     nsx_module_facts_execution(
