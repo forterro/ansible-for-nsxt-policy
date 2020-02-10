@@ -27,19 +27,43 @@ The modules in this repository are focused on enabling automation of installatio
 #### Deployment and installation modules
 
 ##### Logical networking modules
-* nsxt_policy_tier0s
-* nsxt_policy_tier0s_facts
-* nsxt_policy_tier0s_local_services
-* nsxt_policy_tier0s_local_services_facts
-* nsxt_policy_tier0s_static_routes
-* nsxt_policy_tier0s_static_routes_facts
-* nsxt_policy_tier1s
+* nsxt_policy_edgeclusters_facts
+* nsxt_policy_edges_facts
+* nsxt_policy_inventory_groups
+* nsxt_policy_inventory_groups_facts
+* nsxt_policy_ipblock_facts
+* nsxt_policy_ipblocks
 * nsxt_policy_ippools
 * nsxt_policy_ippools_facts
 * nsxt_policy_ippools_static_subnets
 * nsxt_policy_ippools_static_subnets_facts
+* nsxt_policy_lb_monitor_profiles_facts
+* nsxt_policy_lb_pools
+* nsxt_policy_lb_pools_facts
+* nsxt_policy_lb_tcp_monitor_profiles
+* nsxt_policy_lb_virtual_servers
+* nsxt_policy_lb_virtual_servers_facts
+* nsxt_policy_load_balancers
+* nsxt_policy_load_balancers_facts
+* nsxt_policy_router_locale_services
+* nsxt_policy_router_locale_services_facts
+* nsxt_policy_router_locale_services_interfaces
+* nsxt_policy_router_static_routes
+* nsxt_policy_router_static_routes_facts
+* nsxt_policy_security_policies
+* nsxt_policy_security_policies_facts
 * nsxt_policy_segments
 * nsxt_policy_segments_facts
+* nsxt_policy_segments_ports
+* nsxt_policy_segments_ports_facts
+* nsxt_policy_segments_security_profiles
+* nsxt_policy_segments_security_profiles_facts
+* nsxt_policy_tier0s
+* nsxt_policy_tier0s_facts
+* nsxt_policy_tier1s
+* nsxt_policy_tier1s_facts
+* nsxt_policy_transport_zones_facts
+* nsxt_policy_virtual_machines_tags
 
 # Prerequisites
 We assume that ansible is already installed.
