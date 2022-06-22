@@ -91,8 +91,8 @@ Clone [ansible-for-nsxt-policy](https://github.com/forterro/ansible-for-nsxt-pol
 
 The following versions of NSX are supported:
 
- * NSX-T 2.5
- * Ansible 2.9
+ * NSX-T 3.2.x
+ * Ansible 2.9 and above
 
 # Contributing
 

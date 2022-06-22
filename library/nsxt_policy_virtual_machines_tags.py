@@ -172,11 +172,11 @@ def main():
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    base_url = "https://{}/policy/api/v1/infra/realized-state".format(
+    base_url = "https://{}/policy/api/v1/fabric".format(
         module.params["hostname"]
     )
     get_vm_url = "{}/virtual-machines".format(base_url)
-    post_url = "{}/enforcement-points/{}/virtual-machines?action=update_tags".format(
+    post_url = "{}/virtual-machines?action=update_tags".format(
         base_url, module.params["enforcement_point"]
     )
 
