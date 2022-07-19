@@ -136,7 +136,7 @@ def update_tags(
         headers["Content-Type"] = "application/json"
         params = {}
         params["tags"] = tags
-        params["virtual_machine_id"] = vm["external_id"]
+        params["external_id"] = vm["external_id"]
         request_data = json.dumps(params)
 
         (rc, resp) = request(
